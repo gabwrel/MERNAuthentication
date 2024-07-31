@@ -1,9 +1,6 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 node_modules/
-/node_modules
-/client/node_modules
-/server/node_modules
 
 # dependencies
 /node_modules
