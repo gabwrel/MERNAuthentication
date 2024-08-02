@@ -26,7 +26,7 @@ function Home() {
   return (
     <div className='bg-primary p-4 vh-100'>
       <div className='container rounded p-4 bg-white h-100'>
-        <h1>Welcome {userName} the Real Nigga!</h1>
+        <h1>Welcome {userName}!</h1>
         <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
       </div>
     </div>
