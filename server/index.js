@@ -133,14 +133,14 @@ app.get('/getEmployee/:id', authenticateToken, async (req, res) => {
     }
 });
 
-app.put('/update/:id', authenticateToken, upload.single('picture'), async (req, res) => {
+app.put('/update/:id', authenticateToken, upload.single('profileImage'), async (req, res) => {
     const userId = req.user._id;
     const employeeId = req.params.id;
     const { name, email, age, removeImage } = req.body;
     let updates = { name, email, age };
 
     if (req.file) {
-        updates.picture = req.file.path;
+        updates.profileImage = req.file.filename;
     }
 
     try {
@@ -150,11 +150,11 @@ app.put('/update/:id', authenticateToken, upload.single('picture'), async (req, 
             return res.status(404).json({ success: false, message: "Employee not found" });
         }
 
-        if (removeImage && employee.picture) {
-            fs.unlink(employee.picture, (err) => {
+        if (removeImage && employee.profileImage) {
+            fs.unlink(employee.profileImage, (err) => {
                 if (err) console.error(err);
             });
-            updates.picture = null;
+            updates.profileImage = null;
         }
 
         Object.assign(employee, updates);
@@ -166,7 +166,7 @@ app.put('/update/:id', authenticateToken, upload.single('picture'), async (req, 
     }
 });
 
-app.delete('/deleteUser/:id', authenticateToken, async (req, res) => {
+app.delete('/home/:id', authenticateToken, async (req, res) => {
     const userId = req.user._id;
     const employeeId = req.params.id;
 

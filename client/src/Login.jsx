@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { jwtDecode } from 'jwt-decode'; // Adjusted import
+import { PitoyNiOwie } from './constants';
 
 
 function Login() {
@@ -35,7 +36,7 @@ function Login() {
   return (
     <div className='d-flex justify-content-center align-items-center bg-secondary vh-100'>
       <div className='bg-white p-3 rounded w-50'>
-        <h2 className='text-center text-uppercase'>Login</h2>
+        <h2 className='text-center text-uppercase'>Login <PitoyNiOwie uroy={"std"}/></h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
             <label htmlFor="email">

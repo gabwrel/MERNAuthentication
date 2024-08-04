@@ -34,7 +34,7 @@ function UpdateEmployee() {
     };
 
     const handleRemoveImage = () => {
-        axios.put(`http://localhost:3001/updateEmployee/${id}`, { removeImage: true }, {
+        axios.delete(`http://localhost:3001/home/${id}`, { removeImage: true }, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -53,7 +53,7 @@ function UpdateEmployee() {
         formData.append('age', age);
         
         if (picture) {
-            formData.append('picture', picture); // Append the new image file
+            formData.append('profileImage', picture); // Append the new image file
         }
         
         axios.put(`http://localhost:3001/update/${id}`, formData, {

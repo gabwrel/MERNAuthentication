@@ -4,6 +4,7 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { generatePDF, PitoyNiOwie } from './constants';
 
 function Home() {
   const navigate = useNavigate();
@@ -25,6 +26,29 @@ function Home() {
       console.error("Error decoding token:", error);
     }
   }
+
+  const generatePDF = () => {
+    const input = document.getElementById('employeeTable');
+    html2canvas(input).then((canvas) => {
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF();
+      const imgWidth = 210;
+      const pageHeight = 295;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
+      let heightLeft = imgHeight;
+
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft >= 0) {
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, heightLeft - imgHeight, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+
+      pdf.save('employee_list.pdf');
+    });
+  };
 
   const [users, setUsers] = useState([]);
 
@@ -52,34 +76,14 @@ function Home() {
     .catch(err => console.log(err));
   };
 
-  const generatePDF = () => {
-    const input = document.getElementById('employeeTable');
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF();
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      let heightLeft = imgHeight;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, heightLeft - imgHeight, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save('employee_list.pdf');
-    });
-  };
+  
 
   return (
     <div className='bg-primary p-4 vh-100'>
       <div className='container rounded p-4 bg-white h-100'>
         <div className='d-flex justify-content-between mb-2'>
-          <h1>Welcome {userName}!</h1>
+          <h1>Welcome <PitoyNiOwie uroy="tamod"/></h1>
+          
           <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
         </div>
         <div className='d-flex justify-content-between align-items-center mb-3'>
@@ -107,6 +111,7 @@ function Home() {
                     {user.profileImage ? (
                       <img 
                         src={`http://localhost:3001/uploads/${user.profileImage}`} 
+                        // src={user.profileImage}
                         alt={user.name} 
                         className='img-thumbnail' 
                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
