@@ -4,7 +4,6 @@ import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { generatePDF, PitoyNiOwie } from './constants';
 
 function Home() {
   const navigate = useNavigate();
@@ -82,7 +81,7 @@ function Home() {
     <div className='bg-primary p-4 vh-100'>
       <div className='container rounded p-4 bg-white h-100'>
         <div className='d-flex justify-content-between mb-2'>
-          <h1>Welcome <PitoyNiOwie uroy="tamod"/></h1>
+          <h1>Welcome</h1>
           
           <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
         </div>
@@ -111,7 +110,6 @@ function Home() {
                     {user.profileImage ? (
                       <img 
                         src={`http://localhost:3001/uploads/${user.profileImage}`} 
-                        // src={user.profileImage}
                         alt={user.name} 
                         className='img-thumbnail' 
                         style={{ width: '100px', height: '100px', objectFit: 'cover' }}
