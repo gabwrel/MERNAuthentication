@@ -189,6 +189,38 @@ app.delete('/home/:id', authenticateToken, async (req, res) => {
     }
 });
 
+app.delete('/removeImage/:id', authenticateToken, async (req, res) => {
+    const userId = req.user._id;
+    const employeeId = req.params.id;
+
+    try {
+        const employee = await EmployeeModel.findOne({ _id: employeeId, user: userId });
+
+        if (!employee) {
+            return res.status(404).json({ success: false, message: "Employee not found" });
+        }
+
+        if (employee.profileImage) {
+            const imagePath = path.join(__dirname, 'uploads', employee.profileImage);
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error(err);
+                    return res.status(500).json({ success: false, message: "Failed to remove image", error: err.message });
+                }
+            });
+            employee.profileImage = null;
+            await employee.save();
+            return res.status(200).json({ success: true, message: "Profile image removed successfully" });
+        } else {
+            return res.status(400).json({ success: false, message: "No profile image to remove" });
+        }
+    } catch (err) {
+        console.error('Error removing image:', err.message);
+        res.status(500).json({ success: false, message: "An error occurred", error: err.message });
+    }
+});
+
+
 app.listen(3001, () => {
     console.log("Server is running on port 3001");
 });

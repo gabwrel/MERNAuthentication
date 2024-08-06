@@ -7,13 +7,12 @@ function UpdateEmployee() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [age, setAge] = useState('');
-    const [picture, setPicture] = useState(null); // State for the new image file
-    const [currentImage, setCurrentImage] = useState(''); // State for the current image URL
+    const [picture, setPicture] = useState(null);
+    const [currentImage, setCurrentImage] = useState(''); 
     const navigate = useNavigate();
-    const token = localStorage.getItem('accessToken'); // Get the token from local storage
+    const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
-        // Fetch employee data by ID
         axios.get(`http://localhost:3001/getEmployee/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -21,26 +20,26 @@ function UpdateEmployee() {
         })
         .then(response => {
             const employee = response.data.employee;
-            setName(employee.name); // Set the employee name
+            setName(employee.name);
             setEmail(employee.email);
             setAge(employee.age);
-            setCurrentImage(employee.picture); // Set the current image URL
+            setCurrentImage(employee.profileImage ? `http://localhost:3001/uploads/${employee.profileImage}` : ''); 
         })
         .catch(error => console.error('Error fetching employee:', error));
     }, [id, token]);
 
     const handleImageChange = (e) => {
-        setPicture(e.target.files[0]); // Get the selected file
+        setPicture(e.target.files[0]);
     };
 
     const handleRemoveImage = () => {
-        axios.delete(`http://localhost:3001/home/${id}`, { removeImage: true }, {
+        axios.delete(`http://localhost:3001/removeImage/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        .then(result => {
-            setCurrentImage(''); // Clear the current image URL
+        .then(() => {
+            setCurrentImage(''); 
         })
         .catch(err => console.log(err));
     };
@@ -51,11 +50,11 @@ function UpdateEmployee() {
         formData.append('name', name);
         formData.append('email', email);
         formData.append('age', age);
-        
+
         if (picture) {
-            formData.append('profileImage', picture); // Append the new image file
+            formData.append('profileImage', picture);
         }
-        
+
         axios.put(`http://localhost:3001/update/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
@@ -63,12 +62,10 @@ function UpdateEmployee() {
             }
         })
         .then(result => {
-            // After a successful update, set the new image URL (if available)
-            if (result.data.employee.picture) {
-                setCurrentImage(result.data.employee.picture);
+            if (result.data.employee.profileImage) {
+                setCurrentImage(`http://localhost:3001/uploads/${result.data.employee.profileImage}`);
             }
-            console.log(result);
-            navigate('/home'); // Redirect to home or the updated employee list
+            navigate('/home');
         })
         .catch(err => console.log(err));
     };
@@ -79,7 +76,7 @@ function UpdateEmployee() {
                 <form onSubmit={updateEmployee}>
                     <h2>Update Employee</h2>
                     <div className="mb-2">
-                        <label htmlFor="lname">Name</label>
+                        <label htmlFor="name">Name</label>
                         <input 
                             type="text" 
                             id="name" 
@@ -90,9 +87,9 @@ function UpdateEmployee() {
                         />
                     </div>
                     <div className="mb-2">
-                        <label htmlFor="lname">Email</label>
+                        <label htmlFor="email">Email</label>
                         <input 
-                            type="text" 
+                            type="email" 
                             id="email" 
                             placeholder='Enter Email' 
                             className='form-control' 
@@ -101,10 +98,10 @@ function UpdateEmployee() {
                         />
                     </div>
                     <div className="mb-2">
-                        <label htmlFor="lname">Age</label>
+                        <label htmlFor="age">Age</label>
                         <input 
-                            type="text" 
-                            id="lname" 
+                            type="number" 
+                            id="age" 
                             placeholder='Enter Age' 
                             className='form-control' 
                             value={age} 
