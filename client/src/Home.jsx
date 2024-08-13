@@ -3,7 +3,10 @@ import { useNavigate, Link } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import 'jspdf-autotable';
+import { saveAs } from 'file-saver';
+import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, ImageRun } from 'docx';
+
 
 function Home() {
   const navigate = useNavigate();
@@ -25,29 +28,6 @@ function Home() {
       console.error("Error decoding token:", error);
     }
   }
-
-  const generatePDF = () => {
-    const input = document.getElementById('employeeTable');
-    html2canvas(input).then((canvas) => {
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF();
-      const imgWidth = 210;
-      const pageHeight = 295;
-      const imgHeight = canvas.height * imgWidth / canvas.width;
-      let heightLeft = imgHeight;
-
-      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, heightLeft - imgHeight, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save('employee_list.pdf');
-    });
-  };
 
   const [users, setUsers] = useState([]);
 
@@ -75,21 +55,148 @@ function Home() {
     .catch(err => console.log(err));
   };
 
+  const fetchImageAsBase64 = async (url) => {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      const base64 = btoa(
+        new Uint8Array(response.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+      );
+      return `data:image/png;base64,${base64}`;
+    } catch (error) {
+      console.error("Error fetching image:", error);
+      return null;
+    }
+  };
+  
+  
+
+  const generatePDF = async () => {
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text("Employee List", 14, 22);
+  
+    const tableColumn = ["Profile Image", "Name", "Email", "Age"];
+    const tableRows = [];
+  
+    for (const user of users) {
+      let imageData = null;
+      if (user.profileImage) {
+        const imageUrl = `http://localhost:3001/uploads/${user.profileImage}`;
+        imageData = await fetchImageAsBase64(imageUrl);
+      }
+  
+      tableRows.push([
+        { content: imageData ? { image: imageData, width: 20, height: 20 } : "No Image", styles: { halign: 'center', valign: 'middle' } },
+        user.name,
+        user.email,
+        user.age.toString(),
+      ]);
+    }
+  
+    doc.autoTable({
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      columnStyles: {
+        0: { cellWidth: 30, cellPadding: 3, valign: 'middle' },
+        1: { cellWidth: 50 },
+        2: { cellWidth: 70 },
+        3: { cellWidth: 20 },
+      },
+      didDrawCell: (data) => {
+        if (data.section === 'body' && data.column.index === 0 && data.cell.raw.image) {
+          doc.addImage(data.cell.raw.image, 'PNG', data.cell.x + 5, data.cell.y + 2, 20, 20);
+        }
+      }
+    });
+  
+    const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+    doc.save(`employee_list-${date}.pdf`);
+  };
+  
+
+  const generateWordDocument = async () => {
+    const tableRows = [];
+  
+    for (const user of users) {
+      let imageRun;
+      if (user.profileImage) {
+        const imageUrl = `http://localhost:3001/uploads/${user.profileImage}`;
+        const imageData = await fetch(imageUrl)
+          .then(response => response.arrayBuffer())
+          .catch(error => {
+            console.error("Error fetching image:", error);
+            return null;
+          });
+  
+        if (imageData) {
+          imageRun = new ImageRun({
+            data: imageData,
+            transformation: { width: 40, height: 40 }
+          });
+        }
+      }
+  
+      const cells = [
+        new TableCell({
+          children: [imageRun ? imageRun : new Paragraph("No Image")],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph(user.name)],
+          width: { size: 30, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph(user.email)],
+          width: { size: 30, type: WidthType.PERCENTAGE }
+        }),
+        new TableCell({
+          children: [new Paragraph(user.age.toString())],
+          width: { size: 20, type: WidthType.PERCENTAGE }
+        })
+      ];
+  
+      tableRows.push(new TableRow({ children: cells }));
+    }
+  
+    const doc = new Document({
+      sections: [{
+        children: [
+          new Paragraph({
+            text: "Employee List",
+            heading: "Heading1",
+            spacing: { after: 200 }
+          }),
+          new Table({
+            rows: tableRows,
+            width: { size: 100, type: WidthType.PERCENTAGE }
+          })
+        ]
+      }]
+    });
+  
+    try {
+      const blob = await Packer.toBlob(doc);
+      const date = new Date().toLocaleDateString('en-GB').replace(/\//g, '-');
+      saveAs(blob, `employee_list-${date}.docx`);
+    } catch (error) {
+      console.error("Error generating Word document:", error);
+    }
+  };
+  
   
 
   return (
     <div className='bg-primary p-4 vh-100'>
       <div className='container rounded p-4 bg-white h-100'>
         <div className='d-flex justify-content-between mb-2'>
-          <h1>Welcome</h1>
-          
+          <h1>Welcome {userName}</h1>
           <button className='btn btn-danger' onClick={handleLogout}>Logout</button>
         </div>
         <div className='d-flex justify-content-between align-items-center mb-3'>
           <h2>Employee List</h2>
           <div>
             <Link to="/create" className='btn btn-success me-2'>Add +</Link>
-            <button className='btn btn-primary' onClick={generatePDF}>Generate PDF</button>
           </div>
         </div>
         <div id="employeeTable">
@@ -131,6 +238,8 @@ function Home() {
               ))}
             </tbody>
           </table>
+          <button className='btn btn-primary me-2' onClick={generateWordDocument}>Export to Word</button>
+          <button className='btn btn-primary' onClick={generatePDF}>Export to PDF</button>
         </div>
       </div>
     </div>
