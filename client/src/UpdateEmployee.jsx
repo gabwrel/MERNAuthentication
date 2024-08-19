@@ -13,7 +13,7 @@ function UpdateEmployee() {
     const token = localStorage.getItem('accessToken');
 
     useEffect(() => {
-        axios.get(`http://localhost:3001/getEmployee/${id}`, {
+        axios.get(`https://employee-list-server.vercel.app/getEmployee/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -23,7 +23,7 @@ function UpdateEmployee() {
             setName(employee.name);
             setEmail(employee.email);
             setAge(employee.age);
-            setCurrentImage(employee.profileImage ? `http://localhost:3001/uploads/${employee.profileImage}` : ''); 
+            setCurrentImage(employee.profileImage ? `https://employee-list-server.vercel.app/uploads/${employee.profileImage}` : ''); 
         })
         .catch(error => console.error('Error fetching employee:', error));
     }, [id, token]);
@@ -33,7 +33,7 @@ function UpdateEmployee() {
     };
 
     const handleRemoveImage = () => {
-        axios.delete(`http://localhost:3001/removeImage/${id}`, {
+        axios.delete(`https://employee-list-server.vercel.app/removeImage/${id}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -55,7 +55,7 @@ function UpdateEmployee() {
             formData.append('profileImage', picture);
         }
 
-        axios.put(`http://localhost:3001/update/${id}`, formData, {
+        axios.put(`https://employee-list-server.vercel.app/update/${id}`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}`
@@ -63,7 +63,7 @@ function UpdateEmployee() {
         })
         .then(result => {
             if (result.data.employee.profileImage) {
-                setCurrentImage(`http://localhost:3001/uploads/${result.data.employee.profileImage}`);
+                setCurrentImage(`https://employee-list-server.vercel.app/uploads/${result.data.employee.profileImage}`);
             }
             navigate('/home');
         })
