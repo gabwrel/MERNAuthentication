@@ -11,51 +11,41 @@ require('dotenv').config();
 
 const app = express();
 app.use(express.json());
-app.use(cors(
-    {
-        origin: ["https://employee-list-two.vercel.app"],
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true
-    }
-));
-
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-const SECRET_KEY = 'voicemod';
-
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log("Connected to MongoDB"))
-    .catch(err => console.error("Could not connect to MongoDB", err));
-
-app.get("/", (req, res) => {
-    res.json("Nigga");
-})
+app.use(cors({
+    origin: ["https://employee-list-two.vercel.app"],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true
+}));
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-// I-set up ang storage engine para sa Multer
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir); // Ibutang ang mga file sa 'uploads' nga directory
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname)); // I-set ang filename nga may timestamp
-  }
+    destination: (req, file, cb) => cb(null, uploadDir),
+    filename: (req, file, cb) => cb(null, Date.now() + path.extname(file.originalname))
 });
 
 const upload = multer({ storage });
 
+const SECRET_KEY = process.env.SECRET_KEY;
+const uri = process.env.MONGODB_URI;
+
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(() => console.log("Connected to MongoDB"))
+    .catch(err => console.error("Could not connect to MongoDB", err));
+
 app.use('/uploads', express.static(uploadDir));
 
+app.get("/", (req, res) => {
+    res.json("Welcome to the API!");
+});
 
 app.post('/login', async (req, res) => {
     const { email, password } = req.body;
     try {
-        const user = await UserModel.findOne({ email: email });
+        const user = await UserModel.findOne({ email });
         if (user) {
             const isMatch = await user.comparePassword(password);
             if (isMatch) {
@@ -100,14 +90,11 @@ app.get('/protected', authenticateToken, (req, res) => {
 
 app.post('/create', authenticateToken, upload.single('profileImage'), async (req, res) => {
     const { name, email, age } = req.body;
-    const userId = req.user._id; // Make sure this is correctly set
+    const userId = req.user._id;
     const profileImage = req.file ? req.file.filename : null;
 
     try {
-        if (!name || !email || !age) {
-            throw new Error('Required fields are missing');
-        }
-        // Ensure userId is being passed correctly
+        if (!name || !email || !age) throw new Error('Required fields are missing');
         const employee = await EmployeeModel.create({ name, email, age, profileImage, user: userId });
         res.status(201).json({ success: true, employee });
     } catch (err) {
@@ -115,10 +102,6 @@ app.post('/create', authenticateToken, upload.single('profileImage'), async (req
         res.status(500).json({ success: false, message: "An error occurred", error: err.message });
     }
 });
-
-
-
-
 
 app.get('/home', authenticateToken, async (req, res) => {
     const userId = req.user._id;
@@ -162,7 +145,7 @@ app.put('/update/:id', authenticateToken, upload.single('profileImage'), async (
         }
 
         if (removeImage && employee.profileImage) {
-            fs.unlink(employee.profileImage, (err) => {
+            fs.unlink(path.join(uploadDir, employee.profileImage), (err) => {
                 if (err) console.error(err);
             });
             updates.profileImage = null;
@@ -188,8 +171,8 @@ app.delete('/home/:id', authenticateToken, async (req, res) => {
             return res.status(404).json({ success: false, message: "Employee not found" });
         }
 
-        if (employee.picture) {
-            fs.unlink(employee.picture, (err) => {
+        if (employee.profileImage) {
+            fs.unlink(path.join(uploadDir, employee.profileImage), (err) => {
                 if (err) console.error(err);
             });
         }
@@ -212,7 +195,7 @@ app.delete('/removeImage/:id', authenticateToken, async (req, res) => {
         }
 
         if (employee.profileImage) {
-            const imagePath = path.join(__dirname, 'uploads', employee.profileImage);
+            const imagePath = path.join(uploadDir, employee.profileImage);
             fs.unlink(imagePath, (err) => {
                 if (err) {
                     console.error(err);
@@ -230,7 +213,6 @@ app.delete('/removeImage/:id', authenticateToken, async (req, res) => {
         res.status(500).json({ success: false, message: "An error occurred", error: err.message });
     }
 });
-
 
 app.listen(3001, () => {
     console.log("Server is running on port 3001");
