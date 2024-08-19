@@ -11,7 +11,7 @@ function UpdateEmployee() {
     const [currentImage, setCurrentImage] = useState(''); 
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
-
+    axios.defaults.withCredentials = true;
     useEffect(() => {
         axios.get(`https://employee-list-server.vercel.app/getEmployee/${id}`, {
             headers: {

@@ -10,7 +10,7 @@ import { Document, Packer, Paragraph, Table, TableCell, TableRow, WidthType, Ima
 
 function Home() {
   const navigate = useNavigate();
-
+  axios.defaults.withCredentials = true;
   const handleLogout = () => {
     localStorage.removeItem('accessToken'); 
     localStorage.removeItem('userName');

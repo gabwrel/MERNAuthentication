@@ -9,6 +9,7 @@ function CreateEmployee() {
     const [profileImage, setProfileImage] = useState(null);
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
+    axios.defaults.withCredentials = true;
 
     const handleImageChange = (e) => {
         setProfileImage(e.target.files[0]);

@@ -9,7 +9,7 @@ function Signup() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
-
+    axios.defaults.withCredentials = true;
     const handleSubmit = async (e) => {
     e.preventDefault();
     try {
