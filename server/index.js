@@ -23,9 +23,17 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const SECRET_KEY = 'voicemod';
 
+mongoose.connect("mongodb+srv://declarojg:<password>@cluster0.2653t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+    .then(() => console.log("Connected to MongoDB"))
+    .catch(err => console.error("Could not connect to MongoDB", err));
+
+app.get("/", (req, res) => {
+    res.json("Nigga");
+})
+
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir);
 }
 
 // I-set up ang storage engine para sa Multer
@@ -41,10 +49,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use('/uploads', express.static(uploadDir));
-
-mongoose.connect("mongodb+srv://declarojg:R5fdD2xc6aptmZDr@cluster0.2653t.mongodb.net/")
-    .then(() => console.log("Connected to MongoDB"))
-    .catch(err => console.error("Could not connect to MongoDB", err));
 
 
 app.post('/login', async (req, res) => {
