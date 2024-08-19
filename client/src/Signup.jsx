@@ -13,7 +13,7 @@ function Signup() {
     const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const result = await axios.post('https://employee-list-server.vercel.app/register', {
+        const result = await axios.post('https://employee-list-api.vercel.app/register', {
             fname,
             lname,
             email,

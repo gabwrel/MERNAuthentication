@@ -32,7 +32,7 @@ function Home() {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    axios.get('https://employee-list-server.vercel.app/home', {
+    axios.get('https://employee-list-api.vercel.app/home', {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -44,7 +44,7 @@ function Home() {
   }, [token]);
 
   const handleDelete = (id) => {
-    axios.delete(`https://employee-list-server.vercel.app/${id}`, {
+    axios.delete(`https://employee-list-api.vercel.app/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -88,8 +88,8 @@ function Home() {
         
         if (user.profileImage) {
             const img = new Image();
-            img.src = `https://employee-list-server.vercel.app/uploads/${user.profileImage}`;
-            const imageUrl = `https://employee-list-server.vercel.app/uploads/${user.profileImage}`;
+            img.src = `https://employee-list-api.vercel.app/uploads/${user.profileImage}`;
+            const imageUrl = `https://employee-list-api.vercel.app/uploads/${user.profileImage}`;
             imageData = await fetchImageAsBase64(imageUrl);
             owie = img;
         }
@@ -147,7 +147,7 @@ function Home() {
     for (const user of users) {
       let imageRun;
       if (user.profileImage) {
-        const imageUrl = `https://employee-list-server.vercel.app/uploads/${user.profileImage}`;
+        const imageUrl = `https://employee-list-api.vercel.app/uploads/${user.profileImage}`;
         const imageData = await fetch(imageUrl)
           .then(response => response.arrayBuffer())
           .catch(error => {
@@ -244,7 +244,7 @@ function Home() {
                       <>
                         
                         <img 
-                          src={`https://employee-list-server.vercel.app/uploads/${user.profileImage}`} 
+                          src={`https://employee-list-api.vercel.app/uploads/${user.profileImage}`} 
                           alt={user.name} 
                           className='img-thumbnail' 
                           style={{ width: '100px', height: '100px', objectFit: 'cover' }}

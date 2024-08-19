@@ -24,7 +24,7 @@ function CreateEmployee() {
         if (profileImage) {
             formData.append('profileImage', profileImage);
         }
-        axios.post('https://employee-list-server.vercel.app/create', formData, {
+        axios.post('https://employee-list-api.vercel.app/create', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
                 'Authorization': `Bearer ${token}` // Ensure the token is correct
