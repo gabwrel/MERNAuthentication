@@ -10,15 +10,32 @@ function Signup() {
     const [password, setPassword] = useState('');
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        axios.post('https://employee-list-server.vercel.app/register', { fname, lname, email, password })
-            .then(result => {
-                console.log(result);
-                navigate('/login');
-            })
-            .catch(err => console.log(err));
+    const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+        const result = await axios.post('https://employee-list-server.vercel.app/register', {
+            fname,
+            lname,
+            email,
+            password,
+        });
+        console.log(result);
+        navigate('/login');
+    } catch (err) {
+        if (err.response) {
+            // The request was made, and the server responded with a status code outside the range of 2xx
+            console.log('Error Response:', err.response.data);
+            console.log('Error Status:', err.response.status);
+        } else if (err.request) {
+            // The request was made, but no response was received
+            console.log('Error Request:', err.request);
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('Error Message:', err.message);
+        }
     }
+};
+
 
     return (
         <div className='d-flex justify-content-center align-items-center bg-secondary vh-100'>
