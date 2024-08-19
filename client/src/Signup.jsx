@@ -2,45 +2,54 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-
 function Signup() {
-    const [fname, setfName] = useState('');
-    const [lname, setlName] = useState('');
+    const [fname, setFName] = useState('');
+    const [lname, setLName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [error, setError] = useState(null);
     const navigate = useNavigate();
-    axios.defaults.withCredentials = true;
-    const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        const result = await axios.post('https://employee-list-api.vercel.app/register', {
-            fname,
-            lname,
-            email,
-            password,
-        });
-        console.log(result);
-        navigate('/login');
-    } catch (err) {
-        if (err.response) {
-            // The request was made, and the server responded with a status code outside the range of 2xx
-            console.log('Error Response:', err.response.data);
-            console.log('Error Status:', err.response.status);
-        } else if (err.request) {
-            // The request was made, but no response was received
-            console.log('Error Request:', err.request);
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.log('Error Message:', err.message);
-        }
-    }
-};
 
+    axios.defaults.withCredentials = true;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError(null);
+
+        // Basic validation
+        if (!fname || !lname || !email || !password) {
+            setError('All fields are required');
+            return;
+        }
+
+        try {
+            const result = await axios.post('https://employee-list-api.vercel.app/register', {
+                fname,
+                lname,
+                email,
+                password,
+            });
+            console.log(result);
+            navigate('/login');
+        } catch (err) {
+            if (err.response) {
+                // Error response from the server
+                setError(err.response.data.message || 'An error occurred');
+            } else if (err.request) {
+                // No response received
+                setError('No response from server');
+            } else {
+                // Error setting up the request
+                setError(err.message || 'An error occurred');
+            }
+        }
+    };
 
     return (
         <div className='d-flex justify-content-center align-items-center bg-secondary vh-100'>
             <div className='bg-white p-3 rounded w-50'>
                 <h2>Register</h2>
+                {error && <div className='alert alert-danger'>{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="mb-3">
                         <label htmlFor="fname">
@@ -49,11 +58,11 @@ function Signup() {
                         <input 
                             type="text"
                             placeholder='Enter First Name'
-                            autoComplete='off'
                             name='fname'
                             className='form-control rounded-0' 
                             value={fname}
-                            onChange={(e) => setfName(e.target.value)} />
+                            onChange={(e) => setFName(e.target.value)} 
+                        />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="lname">
@@ -62,11 +71,11 @@ function Signup() {
                         <input 
                             type="text"
                             placeholder='Enter Last Name'
-                            autoComplete='off'
                             name='lname'
                             className='form-control rounded-0' 
                             value={lname}
-                            onChange={(e) => setlName(e.target.value)} />
+                            onChange={(e) => setLName(e.target.value)} 
+                        />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="email">
@@ -75,11 +84,11 @@ function Signup() {
                         <input 
                             type="email"
                             placeholder='Enter Email'
-                            autoComplete='off'
                             name='email'
                             className='form-control rounded-0'
                             value={email}
-                            onChange={(e) => setEmail(e.target.value)} />
+                            onChange={(e) => setEmail(e.target.value)} 
+                        />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="password">
@@ -88,11 +97,11 @@ function Signup() {
                         <input 
                             type="password"
                             placeholder='Enter Password'
-                            autoComplete='off'
                             name='password'
                             className='form-control rounded-0'
                             value={password}
-                            onChange={(e) => setPassword(e.target.value)} />
+                            onChange={(e) => setPassword(e.target.value)} 
+                        />
                     </div>
                     <button type='submit' className='btn btn-success w-100 rounded-0'>
                         Register
