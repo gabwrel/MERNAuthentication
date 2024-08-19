@@ -8,8 +8,10 @@ import PrivateRoute from './PrivateRoute';
 import Anonymous from './Anonymous';
 import CreateEmployee from './CreateEmployee';
 import UpdateEmployee from './UpdateEmployee';
+import axios from 'axios';
 
 function App() {
+axios.defaults.withCredentials = true;
   return (
     <BrowserRouter>
       <Routes>
