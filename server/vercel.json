@@ -18,6 +18,7 @@
         "src": "/(.*)",
         "dest": "/$1"
       }
-    ]
+    ],
+    "rewrites": [{ "source": "/(.*)", "destination": "/" }]
   }
   
