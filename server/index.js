@@ -17,10 +17,20 @@ const app = express();
 //     credentials: true
 // }));
 
-app.use(cors());
+const corsOptions = {
+    origin: 'https://employee-list-project.vercel.app',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true, // if you use cookies or authentication
+    optionsSuccessStatus: 200 // for legacy browsers
+  };
+  
+
+app.use(cors(corsOptions));
+// app.options('*',cors())
+
+app.options('*', cors(corsOptions));
 
 app.use(express.json());
-// app.options('*',cors())
 
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
