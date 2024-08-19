@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const UserModel = require('./models/Users');
 const EmployeeModel = require('./models/Employee');
+require('dotenv').config();
 
 const app = express();
 app.use(express.json());
@@ -23,7 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const SECRET_KEY = 'voicemod';
 
-mongoose.connect("mongodb+srv://declarojg:<password>@cluster0.2653t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
+mongoose.connect(process.env.MONGODB_URI)
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("Could not connect to MongoDB", err));
 
