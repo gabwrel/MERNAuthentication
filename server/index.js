@@ -10,7 +10,13 @@ const EmployeeModel = require('./models/Employee');
 
 const app = express();
 app.use(express.json());
-app.use(cors());
+app.use(cors(
+    {
+        origin: ["https://employee-list-two.vercel.app"],
+        methods: ["POST", "GET"],
+        credentials: true
+    }
+));
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
@@ -36,7 +42,7 @@ const upload = multer({ storage });
 
 app.use('/uploads', express.static(uploadDir));
 
-mongoose.connect("mongodb://127.0.0.1:27017/users")
+mongoose.connect("mongodb+srv://declarojg:R5fdD2xc6aptmZDr@cluster0.2653t.mongodb.net/")
     .then(() => console.log("Connected to MongoDB"))
     .catch(err => console.error("Could not connect to MongoDB", err));
 
